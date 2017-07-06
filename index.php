@@ -1,11 +1,5 @@
 <?php
 
-    if(defined(__DIR__)){
-		$diroot= __DIR__;
-    }else{
-		$diroot= dirname(__FILE__);
-    }
-
 if(isset($_POST['action']) and $_POST['action'] == 'upload'){
 
     if(isset($_FILES['user_file']))
@@ -16,7 +10,6 @@ if(isset($_POST['action']) and $_POST['action'] == 'upload'){
     	$file_name = $_FILES["user_file"]["name"];
 	}
 
-//$gpx=simplexml_load_file($url);
 $gpx=json_decode(@file_get_contents($url),true);
 $div=3.28;
 
@@ -41,8 +34,6 @@ if (!empty($gpx) && strpos($file_name,'.js')!==false) {
 	}
 	$altmin = min($alt);
 	$altmax = max($alt);
-	
-	
 	
 	$header->addChild( 'TrackID', $trackid );
 	$header->addChild( 'TrackName', $trackname );
@@ -110,13 +101,10 @@ if (!empty($gpx) && strpos($file_name,'.js')!==false) {
 
 $dom = dom_import_simplexml($xml)->ownerDocument;
 $dom->formatOutput = true;
-//$file_name = preg_replace ("/.js/", ".xml", $file_name );
-
 	header('Content-Description: File Transfer');
 	header('Content-Type: application/octet-stream');
 	header('Content-Disposition: attachment; filename='.$file_xml.'.xml' );
 	echo $dom->saveXML();
-
 exit();
 }
 ?>
