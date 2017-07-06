@@ -9,13 +9,33 @@ if(isset($_POST['action']) and $_POST['action'] == 'upload'){
 	$url = $_FILES["user_file"]["tmp_name"]; 
     	$file_name = $_FILES["user_file"]["name"];
 	}
-
-$gpx=json_decode(@file_get_contents($url),true);
-$div=3.28;
-
-if (!empty($gpx) && strpos($file_name,'.js')!==false) {
 	
-	$gpx=$gpx['data']['trackData'][0];
+	$totaldist=0;
+	$aupheight=0;
+	$adownheight=0;
+	$gpx=array();
+
+	if (strpos($file_name,'.js')!==false) {
+	$gpx=json_decode(@file_get_contents($url),true);
+	if (!empty($gpx)) {$gpx=$gpx['data']['trackData'][0];}
+}elseif (strpos($file_name,'.gpx')!==false){
+	$gpxxml=simplexml_load_file($url);
+	if (!empty($gpxxml)) {
+		$totaldist=substr(str_replace('.',',',(string)$gpxxml->metadata->extensions->children('gpsies',true)->trackLengthMeter ),0,5);
+		$aupheight=(int)$gpxxml->metadata->extensions->children('gpsies',true)->totalAscentMeter;
+		$adownheight=(int)$gpxxml->metadata->extensions->children('gpsies',true)->totalDescentMeter;
+		$t=0;
+		foreach ($gpxxml->trk->trkseg->trkpt as $v) {
+			$gpx[$t]['lat']=(float)$v->attributes()->{'lat'};
+			$gpx[$t]['lon']=(float)$v->attributes()->{'lon'};
+			$gpx[$t]['ele']=(int)$v->ele;
+			$t++;
+		}
+	}
+}
+
+
+if (!empty($gpx)) {
 	
 	$xml=new SimpleXMLElement("<GB-580_Dataform></GB-580_Dataform>");
 	$ftime=filemtime($url);
@@ -32,28 +52,28 @@ if (!empty($gpx) && strpos($file_name,'.js')!==false) {
 	foreach ($gpx as $k=>$v){
 		$alt[]=$v['ele'];
 	}
-	$altmin = min($alt);
-	$altmax = max($alt);
+	$altmin = (int)min($alt);
+	$altmax = (int)max($alt);
 	
 	$header->addChild( 'TrackID', $trackid );
 	$header->addChild( 'TrackName', $trackname );
 	$header->addChild( 'StartTime', $starttime );
 	$header->addChild( 'During', 0 );
-	$header->addChild( 'TotalDist', 0 );
+	$header->addChild( 'TotalDist', $totaldist );
 	$header->addChild( 'Calories', 0 );
 	$header->addChild( 'MaxSpeed', 0 );
 	$header->addChild( 'MaxHearRate', 0 );
 	$header->addChild( 'AvgHeartRate', 0 );
 	$header->addChild( 'NoOfPoints', $noofpoints );
 	$header->addChild( 'NoOfLaps', 1 );
-	$header->addChild( 'AUpheight', 0 );
-	$header->addChild( 'ADownheight', 0 );
+	$header->addChild( 'AUpheight', $aupheight );
+	$header->addChild( 'ADownheight', $adownheight );
 	$header->addChild( 'AvgCadence', 0 );
 	$header->addChild( 'MaxCadence', 0 );
 	$header->addChild( 'AvgPower', 0 );
 	$header->addChild( 'MaxPower', 0 );
-	$header->addChild( 'MinAltitude', number_format($altmin/$div,0,'','') );
-	$header->addChild( 'MaxAltitude', number_format($altmax/$div,0,'','') );
+	$header->addChild( 'MinAltitude', $altmin );
+	$header->addChild( 'MaxAltitude', $altmax );
 	$header->addChild( 'MultiSport', 0 );
 	$header->addChild( 'Sport1', 4 );
 	$header->addChild( 'Sport2', 0 );
@@ -65,7 +85,7 @@ if (!empty($gpx) && strpos($file_name,'.js')!==false) {
 	$lapmaster->addChild( 'LapNo', 1 );
 	$lapmaster->addChild( 'AccruedTime', 0 );
 	$lapmaster->addChild( 'TotalTime', 0 );
-	$lapmaster->addChild( 'totalDistance', 0 );
+	$lapmaster->addChild( 'totalDistance', $totaldist );
 	$lapmaster->addChild( 'calory', 0 );
 	$lapmaster->addChild( 'MaxSpeed', 0 );
 	$lapmaster->addChild( 'MaxHR', 0 );
@@ -76,8 +96,8 @@ if (!empty($gpx) && strpos($file_name,'.js')!==false) {
 	$lapmaster->addChild( 'BestCadence', 0 );
 	$lapmaster->addChild( 'AvgPower', 0 );
 	$lapmaster->addChild( 'MaxPower', 0 );
-	$lapmaster->addChild( 'MinAltitude', 0 );
-	$lapmaster->addChild( 'MaxAltitude', 0 );
+	$lapmaster->addChild( 'MinAltitude', $altmin );
+	$lapmaster->addChild( 'MaxAltitude', $altmax );
 	$lapmaster->addChild( 'MultiSportIndex', 4 );
 	
 	foreach ($gpx as $k=>$v){
@@ -85,7 +105,7 @@ if (!empty($gpx) && strpos($file_name,'.js')!==false) {
 		$tp->addChild('Sl_x0020_No', $k+1);
 		$tp->addChild('Latitude', str_replace('.',',',$v['lat']));
 		$tp->addChild('Longitude', str_replace('.',',',$v['lon']));
-		$tp->addChild('Altitude', number_format($v['ele']/$div,0,'',''));
+		$tp->addChild('Altitude', (int)$v['ele'] );
 		$tp->addChild('Speed', 0);
 		$tp->addChild('Heart_x0020_Rate', 0);
 		$tp->addChild('Interval_x0020_Time', ($k?1:0) );
@@ -182,14 +202,14 @@ exit();
 			});
 	});
 	</script>
-	<title>JSON Track ( gpsies.com ) convert to XML ( GlobalSite )</title>
+	<title>GPX/JSON Track ( gpsies.com ) convert to XML ( GlobalSite )</title>
 </head>
 <body>
 	<div class="container">
 	<div class="row">
 	<div class="col-xs-12">
-	<h3>JSON to XML</h3>
-	<p class="small">JSON Track <span class="label label-default">gpsies.com</span><br>convert to XML <span class="label label-default">GlobalSite</span></p>
+	<h3>GPX/JSON to XML</h3>
+	<p class="small">GPX/JSON Track <span class="label label-default">gpsies.com</span><br>convert to XML <span class="label label-default">GlobalSite</span></p>
 	<hr />
 		<form id="form" method="post" action="index.php" enctype="multipart/form-data">
 			<input type="hidden" name="action" value="upload" />
@@ -206,4 +226,3 @@ exit();
 	</div>
 </body>
 </html>
-
