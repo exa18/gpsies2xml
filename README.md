@@ -1,5 +1,5 @@
-# json2xml
-JSON Track ( gpsies.com ) convert to XML ( GlobalSite )
+# gpsies2xml
+GPX/JSON Track ( gpsies.com ) convert to XML ( GlobalSite )
 
 # After convertion
 You need to enter to STG install folder, go to data, go to "user" then year, then create folder with date, like
