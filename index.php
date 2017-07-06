@@ -15,7 +15,7 @@ if(isset($_POST['action']) and $_POST['action'] == 'upload'){
 	$adownheight=0;
 	$gpx=array();
 
-	if (strpos($file_name,'.js')!==false) {
+if (strpos($file_name,'.js')!==false) {
 	$gpx=json_decode(@file_get_contents($url),true);
 	if (!empty($gpx)) {$gpx=$gpx['data']['trackData'][0];}
 }elseif (strpos($file_name,'.gpx')!==false){
