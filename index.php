@@ -204,13 +204,13 @@ exit();
 			});
 	});
 	</script>
-	<title>GPX/JSON Track ( gpsies.com ) convert to XML ( GlobalSite )</title>
+	<title>Route converter for GS-Sport Training Gym Pro</title>
 </head>
 <body>
 	<div class="container">
 	<div class="row">
 	<div class="col-xs-12">
-	<h3>GPX/JSON to XML</h3>
+	<h3>Route converter<br /><small>for GS-Sport Training Gym Pro</small></h3>
 	<p class="small">GPX/JSON Track <span class="label label-default">gpsies.com</span><br>convert to XML <span class="label label-default">GlobalSite</span></p>
 	<hr />
 		<form id="form" method="post" action="index.php" enctype="multipart/form-data">
