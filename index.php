@@ -5,10 +5,9 @@ if(isset($_POST['action']) and $_POST['action'] == 'upload'){
     if(isset($_FILES['user_file']))
     {
         $files = $_FILES['user_file'];
-
 	$url = $_FILES["user_file"]["tmp_name"]; 
     	$file_name = $_FILES["user_file"]["name"];
-	}
+    }
 	
 	$totaldist=0;
 	$aupheight=0;
