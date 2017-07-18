@@ -143,38 +143,14 @@ exit();
 	.row>div{text-align:center}
 	h3{color:#3cd}
 	span.label{line-height:2;position: relative;top: -.2em}
-	.inputfile {
-		width: 0.1px;
-		height: 0.1px;
-		opacity: 0;
-		overflow: hidden;
-		position: absolute;
-		z-index: -1;
-	}
-	.inputfile-1 + label {
-		color: #ffffff;
-		background-color: #3cd;
-	}
-	.inputfile + label {
-		max-width: 80%;
-		font-size: 1.25rem;
-		font-weight: 700;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		cursor: pointer;
-		display: inline-block;
-		overflow: hidden;
-		padding: 0.625rem 1.25rem;
-		margin-bottom:1.5rem
-	}
-	.inputfile + label svg {
-		width: 1em;
-		height: 1em;
-		vertical-align: middle;
-		fill: currentColor;
-		margin-top: -0.25em;
-		margin-right: 0.25em;
-	}
+	.inputfile{width:.1px;height:.1px;opacity:0;overflow:hidden;position:absolute;z-index:-1}
+	.inputfile-1 + label{color:#fff;background-color:#3cd}
+	.inputfile + label{max-width:80%;font-size:1.25rem;font-weight:700;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;display:inline-block;overflow:hidden;padding:.625rem 1.25rem;margin-bottom:1.5rem}
+	.inputfile + label svg{width:1em;height:1em;vertical-align:middle;fill:currentColor;margin-top:-.25em;margin-right:.25em}
+	.txt-normal{font-weight:normal}
+	.btn-default.btn-on.active, .btn-default.btn-off.active{background-color: #3cd;color: white}	
+	.btn-switch .btn-default.btn-off.active{background-color: #777}
+	#footer{margin:auto}
 	</style>
 	<script type="text/javascript">
 	var ff = {
@@ -186,7 +162,6 @@ exit();
 	};
 	
 	$(function(){
-		//ff.labelval=$('label[data-txt]').data('txt');
 		ff.labelchange(ff.labelval);
 			$('#'+ff.input).on('change', function(){
 				var file = document.forms['form'][ff.input].files[0];
@@ -222,7 +197,9 @@ exit();
 					<br />
 			<input class="btn btn-default hidden" type="reset" value="Clear" />
 			<input class="btn btn-success hidden" type="submit" value="Convert" />
-		</form> 
+		</form>
+		<hr />
+		<div id="footer" class="small">powered by <a class="btn btn-default btn-xs" href="https://github.com/exa18/gpsies2xml">GitHub</a></div>
 	</div>
 	</div>
 	</div>
