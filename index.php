@@ -1,13 +1,49 @@
 <?php
 
+$version = "1.2";
+$txta = "Route converter";
+$txtb = "GS-Sport Training Gym Pro";
+
+function getdistance($gpx){
+	$totaldist = 0;
+	$earth_radius = 6371;
+		$lat1 = $gpx[0]['lat'];
+		$lon1 = $gpx[0]['lon'];
+	foreach ($gpx as $k=>$v){
+		if ( $k>0 ) {
+			$lat2 = $v['lat'];
+			$lon2 = $v['lon'];
+			if (( $lat1 != $lat2 ) && ( $lon1 != $lon2 ))
+			{
+				/*
+					Haversine formula
+					https://www.movable-type.co.uk/scripts/latlong.html
+				*/
+		    	$dLat = deg2rad($lat2 - $lat1);
+		    	$dLon = deg2rad($lon2 - $lon1);
+		    	$a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
+				$c = 2 * asin(sqrt($a));
+				$d = $earth_radius * $c;
+				
+				$totaldist = $totaldist + ( $d * 1000);
+				$lat1 = $lat2;
+				$lon1 = $lon2;
+			}
+		}
+	}
+	// precision to 1 meter
+	$totaldist = number_format($totaldist, 0, ',', '');
+	return $totaldist;
+}
+
 if(isset($_POST['action']) and $_POST['action'] == 'upload'){
 
     if(isset($_FILES['user_file']))
     {
         $files = $_FILES['user_file'];
-	$url = $_FILES["user_file"]["tmp_name"]; 
+		$url = $_FILES["user_file"]["tmp_name"]; 
     	$file_name = $_FILES["user_file"]["name"];
-    }
+	}
 	
 	$totaldist=0;
 	$aupheight=0;
@@ -16,7 +52,10 @@ if(isset($_POST['action']) and $_POST['action'] == 'upload'){
 
 if (strpos($file_name,'.js')!==false) {
 	$gpx=json_decode(@file_get_contents($url),true);
-	if (!empty($gpx)) {$gpx=$gpx['data']['trackData'][0];}
+	if (!empty($gpx)) {
+		$gpx=$gpx['data']['trackData'][0];
+		$totaldist = getdistance($gpx);
+	}
 }elseif (strpos($file_name,'.gpx')!==false){
 	$gpxxml=simplexml_load_file($url);
 	if (!empty($gpxxml)) {
@@ -30,6 +69,7 @@ if (strpos($file_name,'.js')!==false) {
 			$gpx[$t]['ele']=(int)$v->ele;
 			$t++;
 		}
+		if (!$totaldist) { $totaldist = getdistance($gpx); }
 	}
 }
 
@@ -178,13 +218,13 @@ exit();
 			});
 	});
 	</script>
-	<title>Route converter for GS-Sport Training Gym Pro</title>
+	<title><?=$txta?> for <?=$txtb?></title>
 </head>
 <body>
 	<div class="container">
 	<div class="row">
 	<div class="col-xs-12">
-	<h3>Route converter<br /><small>for GS-Sport Training Gym Pro</small></h3>
+	<h3><?=$txta?> <span class="badge"><?=$version?></span><br /><small>for <?=$txtb?></small></h3>
 	<p class="small">GPX/JSON Track <span class="label label-default">gpsies.com</span><br>convert to XML <span class="label label-default">GlobalSite</span></p>
 	<hr />
 		<form id="form" method="post" action="index.php" enctype="multipart/form-data">
