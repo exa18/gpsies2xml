@@ -60,7 +60,6 @@ if (strpos($file_name,'.js')!==false) {
 	$gpx=json_decode(@file_get_contents($url),true);
 	if (!empty($gpx)) {
 		$gpx=$gpx['data']['trackData'][0];
-		$totaldist = getdistance($gpx);
 	}
 }elseif (strpos($file_name,'.gpx')!==false){
 	$gpxxml=simplexml_load_file($url);
