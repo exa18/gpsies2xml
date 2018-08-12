@@ -32,10 +32,16 @@ function getdistance($gpx){
 		}
 	}
 	// precision to 1 meter
-	$totaldist = number_format($totaldist, 0, ',', '');
+	$totaldist = normf($totaldist);
 	return $totaldist;
 }
+function normf($t){
+	return number_format($t, 0, ',', '');
+}
 
+/*
+	START
+*/
 if(isset($_POST['action']) and $_POST['action'] == 'upload'){
 
     if(isset($_FILES['user_file']))
@@ -69,13 +75,38 @@ if (strpos($file_name,'.js')!==false) {
 			$gpx[$t]['ele']=(int)$v->ele;
 			$t++;
 		}
-		if (!$totaldist) { $totaldist = getdistance($gpx); }
 	}
 }
 
-
 if (!empty($gpx)) {
-	
+	/*
+		Calc: min & max altitude, ascend and descend, total distance
+	*/
+	$alt=array();
+	$au = 0;
+	$ad = 0;
+	$l = 0;
+	foreach ($gpx as $k=>$v){
+		$a = $v['ele'];
+		$alt[]= $a;
+		if ($k>0) {
+			$e = $a - $l;
+			if ($e>0) {
+				$au = $au + $e;
+			}elseif ($e<0){
+				$ad = $ad - $e;
+			}
+		}
+		$l = $a;
+	}
+	$altmin = (int)min($alt);
+	$altmax = (int)max($alt);
+	if (!$aupheight) { $aupheight = normf($altmin + $au/2); }
+	if (!$adownheight) { $adownheight = normf($altmin + $ad/2); }
+	if (!$totaldist) { $totaldist = getdistance($gpx); }
+	/*
+		Construct XML
+	*/
 	$xml=new SimpleXMLElement("<GB-580_Dataform></GB-580_Dataform>");
 	$ftime=filemtime($url);
 	$trackid=date("njHis",$ftime);
@@ -86,13 +117,6 @@ if (!empty($gpx)) {
 	
 	$header=$xml->addChild( 'trackHeader' );
 	$lapmaster=$xml->addChild( 'trackLapMaster' );
-	
-	$alt=array();
-	foreach ($gpx as $k=>$v){
-		$alt[]=$v['ele'];
-	}
-	$altmin = (int)min($alt);
-	$altmax = (int)max($alt);
 	
 	$header->addChild( 'TrackID', $trackid );
 	$header->addChild( 'TrackName', $trackname );
